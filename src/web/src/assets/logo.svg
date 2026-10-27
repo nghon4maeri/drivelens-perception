@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+  <title>DriveLens · IrishCoffee</title>
+  <defs><linearGradient id="dl-g" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#3D6B4F"/><stop offset="1" stop-color="#059669"/></linearGradient></defs>
+  <rect width="48" height="48" rx="13" fill="url(#dl-g)"/>
+  <g fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M20 6.5c-1.2 1.4-1.2 2.8 0 4.2M27 6.5c-1.2 1.4-1.2 2.8 0 4.2"/>
+    <path d="M12.5 14h21l-2.1 13.6A5 5 0 0 1 26.5 32h-6a5 5 0 0 1-4.9-4.4z"/>
+    <path d="M33.3 17.5h2.2a3.5 3.5 0 0 1 0 7h-2.9"/>
+    <path d="M23.5 32v6.5M18.5 40.5h10"/>
+    <circle cx="23.5" cy="23.6" r="4.2"/>
+  </g>
+  <path d="M13.1 14h19.8l-.5 3.4H13.6z" fill="#fff"/>
+  <circle cx="23.5" cy="23.6" r="1.4" fill="#fff"/>
+</svg>

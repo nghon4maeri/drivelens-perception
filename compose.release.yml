@@ -1,0 +1,18 @@
+# Local smoke of the same private images used by Render; no AI worker or automatic migrations.
+services:
+  api:
+    image: ${RAV_IMAGE_NAMESPACE:?Set Docker Hub username}/rav26:api-${RAV_RELEASE_TAG:?Set commit tag}
+    env_file: .env.api
+    environment:
+      PORT: "8000"
+    ports:
+      - "127.0.0.1:8000:8000"
+    restart: unless-stopped
+  web:
+    image: ${RAV_IMAGE_NAMESPACE:?Set Docker Hub username}/rav26:web-${RAV_RELEASE_TAG:?Set commit tag}
+    env_file: .env.web
+    environment:
+      PORT: "8080"
+    ports:
+      - "127.0.0.1:8080:8080"
+    restart: unless-stopped

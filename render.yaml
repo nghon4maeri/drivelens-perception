@@ -1,0 +1,25 @@
+# Legacy Static Site fallback. Current image release: docs/setup/DOCKER_IMAGE_RELEASE.md (#100).
+services:
+  - type: web
+    name: rav26-web
+    runtime: static
+    branch: duy-mvp/v2
+    rootDir: src/web
+    buildCommand: npm ci && npx tsc --noEmit && npm run build
+    staticPublishPath: dist
+    autoDeployTrigger: checksPass
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_RAV_MODE
+        value: pilot
+      - key: NODE_VERSION
+        value: 22.22.0
+      - key: VITE_API_URL
+        sync: false
+      - key: VITE_SUPABASE_URL
+        sync: false
+      - key: VITE_SUPABASE_PUBLISHABLE_KEY
+        sync: false

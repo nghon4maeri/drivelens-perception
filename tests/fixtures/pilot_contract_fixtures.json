@@ -1,0 +1,379 @@
+{
+  "version": "rav.pilot.fixtures.v1",
+  "actor_contexts": {
+    "pilot_user_a": {
+      "user_id": "a0000000-0000-0000-0000-000000000001",
+      "request_id": "f0000000-0000-0000-0000-000000000001",
+      "actor_string": "human:a0000000-0000-0000-0000-000000000001"
+    },
+    "pilot_user_b": {
+      "user_id": "b0000000-0000-0000-0000-000000000002",
+      "request_id": "f0000000-0000-0000-0000-000000000002",
+      "actor_string": "human:b0000000-0000-0000-0000-000000000002"
+    },
+    "local_v1": {
+      "user_id": null,
+      "request_id": "00000000-0000-0000-0000-000000000000",
+      "actor_string": "human:local"
+    }
+  },
+  "sources": {
+    "private_video": {
+      "id": "02000000-0000-0000-0000-000000000001",
+      "core_source_id": "cam_front_sample",
+      "kind": "VIDEO",
+      "scope": "PRIVATE",
+      "owner_id": "a0000000-0000-0000-0000-000000000001",
+      "protected": false,
+      "name": "cam_front_sample.mp4",
+      "availability": "READY",
+      "resource_version": 1,
+      "metadata": {
+        "width": 1920,
+        "height": 1080,
+        "duration_ms": 30000,
+        "n_frames": 900,
+        "n_units": 120
+      },
+      "dino": {
+        "ready": true,
+        "job_id": null
+      },
+      "clip": {
+        "ready": true,
+        "job_id": null
+      },
+      "frames": {
+        "ready": false,
+        "job_id": null
+      }
+    },
+    "system_demo_video": {
+      "id": "02000000-0000-0000-0000-000000000002",
+      "core_source_id": "demo_commaai",
+      "kind": "VIDEO",
+      "scope": "SYSTEM",
+      "owner_id": null,
+      "protected": true,
+      "name": "commaai-sample.mp4",
+      "availability": "READY",
+      "resource_version": 1,
+      "metadata": {
+        "width": 1280,
+        "height": 720,
+        "duration_ms": 21000,
+        "n_frames": 630,
+        "n_units": 84
+      },
+      "dino": {
+        "ready": true,
+        "job_id": null
+      },
+      "clip": {
+        "ready": true,
+        "job_id": null
+      },
+      "frames": {
+        "ready": false,
+        "job_id": null
+      }
+    },
+    "system_reference_dataset": {
+      "id": "02000000-0000-0000-0000-000000000003",
+      "core_source_id": "bdd100k_demo_ref",
+      "kind": "IMAGE_SET",
+      "scope": "SYSTEM",
+      "owner_id": null,
+      "protected": true,
+      "name": "BDD100K Mini Reference",
+      "availability": "READY",
+      "resource_version": 1,
+      "metadata": {
+        "width": null,
+        "height": null,
+        "duration_ms": null,
+        "n_frames": null,
+        "n_units": 200
+      },
+      "dino": {
+        "ready": true,
+        "job_id": null
+      },
+      "clip": {
+        "ready": true,
+        "job_id": null
+      },
+      "frames": {
+        "ready": false,
+        "job_id": null
+      }
+    }
+  },
+  "sessions": {
+    "create_session_input": {
+      "name": "Phiên thử nghiệm A",
+      "goal": "Tìm xe và chướng ngại vật ban ngày",
+      "target_k": 30,
+      "pool_source_ids": [
+        "02000000-0000-0000-0000-000000000001"
+      ],
+      "reference": null
+    },
+    "session_dto": {
+      "id": "01000000-0000-0000-0000-000000000001",
+      "name": "Phiên thử nghiệm A",
+      "goal": "Tìm xe và chướng ngại vật ban ngày",
+      "target_k": 30,
+      "pool_source_ids": [
+        "02000000-0000-0000-0000-000000000001"
+      ],
+      "reference": null,
+      "state_version": 1,
+      "n_units": 120,
+      "created_at": "2026-10-09T16:00:00Z",
+      "started_from_template_id": null
+    },
+    "review_state_dto": {
+      "session_id": "01000000-0000-0000-0000-000000000001",
+      "state_version": 2,
+      "decision_seq": 1,
+      "kept_ids": [
+        "cam_front_sample:0.000-0.000"
+      ],
+      "dropped_ids": []
+    }
+  },
+  "templates": {
+    "template_dto": {
+      "id": "03000000-0000-0000-0000-000000000001",
+      "template_key": "demo-template-highway",
+      "availability": "VERIFIED",
+      "reason_code": null,
+      "goal": "Duyệt mẫu cao tốc mẫu",
+      "target_k": 20,
+      "source_ids": [
+        "02000000-0000-0000-0000-000000000002"
+      ],
+      "counts": {
+        "proposals": 3,
+        "decisions": 12,
+        "snapshots": 1
+      }
+    },
+    "fork_input": {
+      "name": "Phiên riêng từ mẫu cao tốc"
+    },
+    "fork_receipt": {
+      "session": {
+        "id": "01000000-0000-0000-0000-000000000002",
+        "name": "Phiên riêng từ mẫu cao tốc",
+        "goal": "Duyệt mẫu cao tốc mẫu",
+        "target_k": 20,
+        "pool_source_ids": [
+          "02000000-0000-0000-0000-000000000002"
+        ],
+        "reference": null,
+        "state_version": 1,
+        "n_units": 84,
+        "created_at": "2026-10-09T16:05:00Z",
+        "started_from_template_id": "03000000-0000-0000-0000-000000000001"
+      },
+      "template_id": "03000000-0000-0000-0000-000000000001",
+      "counts": {
+        "proposals": 0,
+        "decisions": 0,
+        "snapshots": 0
+      },
+      "replayed": false
+    }
+  },
+  "uploads": {
+    "create_upload_input": {
+      "filename": "dashcam_video.mp4",
+      "declared_bytes": 10485760
+    },
+    "upload_created_dto": {
+      "id": "04000000-0000-0000-0000-000000000001",
+      "state": "CREATED",
+      "validation_job_id": null,
+      "source_id": null,
+      "error": null,
+      "transfer": {
+        "method": "POST",
+        "url": "https://s3.example.com/bucket",
+        "fields": {
+          "key": "pilot-rav26/staging/a0000000-0000-0000-0000-000000000001/04000000-0000-0000-0000-000000000001/video"
+        },
+        "expires_at": "2026-10-09T16:10:00Z"
+      }
+    },
+    "upload_validating_dto": {
+      "id": "04000000-0000-0000-0000-000000000001",
+      "state": "VALIDATING",
+      "validation_job_id": "05000000-0000-0000-0000-000000000004",
+      "source_id": null,
+      "error": null
+    },
+    "upload_ready_dto": {
+      "id": "04000000-0000-0000-0000-000000000001",
+      "state": "READY",
+      "validation_job_id": "05000000-0000-0000-0000-000000000004",
+      "source_id": "02000000-0000-0000-0000-000000000001",
+      "error": null
+    }
+  },
+  "media": {
+    "media_request_pending": {
+      "id": "06000000-0000-0000-0000-000000000001",
+      "state": "PENDING",
+      "job_id": "05000000-0000-0000-0000-000000000002",
+      "url": null,
+      "expires_at": null,
+      "sha256": null,
+      "error": null
+    },
+    "media_request_ready": {
+      "id": "06000000-0000-0000-0000-000000000001",
+      "state": "READY",
+      "job_id": null,
+      "url": "https://s3.example.com/signed-media-thumbnail",
+      "expires_at": "2026-10-09T16:05:00Z",
+      "sha256": "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789",
+      "error": null
+    }
+  },
+  "jobs": {
+    "job_dto_queued": {
+      "id": "05000000-0000-0000-0000-000000000001",
+      "kind": "PREPARE_DINO",
+      "state": "QUEUED",
+      "state_version": 1,
+      "phase": "WAITING_SLOT",
+      "progress": {
+        "done": 0,
+        "total": 120
+      },
+      "attempt_n": 0,
+      "waiting_reason": null,
+      "error": null,
+      "resource_id": "02000000-0000-0000-0000-000000000001",
+      "result_ref": null
+    },
+    "job_dto_running": {
+      "id": "05000000-0000-0000-0000-000000000001",
+      "kind": "PREPARE_DINO",
+      "state": "RUNNING",
+      "state_version": 2,
+      "phase": "EXTRACTING_FEATURES",
+      "progress": {
+        "done": 60,
+        "total": 120
+      },
+      "attempt_n": 1,
+      "waiting_reason": null,
+      "error": null,
+      "resource_id": "02000000-0000-0000-0000-000000000001",
+      "result_ref": null
+    },
+    "job_dto_succeeded": {
+      "id": "05000000-0000-0000-0000-000000000001",
+      "kind": "PREPARE_DINO",
+      "state": "SUCCEEDED",
+      "state_version": 3,
+      "phase": "PUBLISHED",
+      "progress": {
+        "done": 120,
+        "total": 120
+      },
+      "attempt_n": 1,
+      "waiting_reason": null,
+      "error": null,
+      "resource_id": "02000000-0000-0000-0000-000000000001",
+      "result_ref": "08000000-0000-0000-0000-000000000001"
+    }
+  },
+  "quotas": {
+    "quota_dto": {
+      "server_time": "2026-10-09T16:02:00Z",
+      "next_reset_at": "2026-10-09T20:00:00Z",
+      "cpu": {
+        "base_available": 3030000,
+        "bonus_available": 0,
+        "held": 120000
+      },
+      "gpu": {
+        "base_available": 900000,
+        "bonus_available": 0,
+        "held": 600000
+      },
+      "admission": {
+        "allowed": true,
+        "reason": null
+      }
+    }
+  },
+  "exports": {
+    "export_requested": {
+      "id": "07000000-0000-0000-0000-000000000001",
+      "session_id": "01000000-0000-0000-0000-000000000001",
+      "snapshot_id": "08000000-0000-0000-0000-000000000001",
+      "state": "PROCESSING",
+      "payload_hash": null,
+      "download_url": null
+    },
+    "export_needs_confirmation": {
+      "id": "07000000-0000-0000-0000-000000000001",
+      "session_id": "01000000-0000-0000-0000-000000000001",
+      "snapshot_id": "08000000-0000-0000-0000-000000000001",
+      "state": "NEEDS_CONFIRMATION",
+      "payload_hash": "1111222233334444555566667777888899990000aaaabbbbccccddddeeeeffff",
+      "redacted_preview_urls": [
+        "https://s3.example.com/preview1"
+      ],
+      "report_summary": {
+        "total_units": 10,
+        "faces_redacted": 4,
+        "plates_redacted": 6
+      },
+      "download_url": null
+    },
+    "export_confirm_input": {
+      "payload_hash": "1111222233334444555566667777888899990000aaaabbbbccccddddeeeeffff"
+    },
+    "export_ready": {
+      "id": "07000000-0000-0000-0000-000000000001",
+      "session_id": "01000000-0000-0000-0000-000000000001",
+      "snapshot_id": "08000000-0000-0000-0000-000000000001",
+      "state": "READY",
+      "payload_hash": "1111222233334444555566667777888899990000aaaabbbbccccddddeeeeffff",
+      "download_url": "https://s3.example.com/download-bundle.zip",
+      "expires_at": "2026-10-09T16:15:00Z"
+    }
+  },
+  "deletions": {
+    "delete_input": {
+      "expected_resource_version": 1
+    },
+    "delete_receipt_pending": {
+      "id": "09000000-0000-0000-0000-000000000001",
+      "source_id": "02000000-0000-0000-0000-000000000001",
+      "state": "REQUESTED",
+      "job_id": "05000000-0000-0000-0000-000000000003",
+      "error": null
+    },
+    "delete_conflict_resource_in_use": {
+      "error": {
+        "code": "resource_in_use",
+        "message": "nguồn đang được phiên/snapshot/job tham chiếu",
+        "retryable": false,
+        "request_id": "f0000000-0000-0000-0000-000000000001",
+        "dependencies": [
+          {
+            "kind": "SESSION",
+            "id": "01000000-0000-0000-0000-000000000001"
+          }
+        ]
+      }
+    }
+  }
+}

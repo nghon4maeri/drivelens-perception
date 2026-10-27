@@ -1,0 +1,11 @@
+{
+  "seed_version": "demo-2026-10-10",
+  "decision": "#90",
+  "templates": [
+    {"template_key": "demo-da-dang-canh", "legacy_session_id": "d389b08af588455e9d8fc7ecff9a238a",
+     "name": "Mẫu: Đa dạng cảnh — dashcam đô thị"},
+    {"template_key": "demo-dem-mua-lon", "legacy_session_id": "dfbeca2c4a494c1084da395217a092f3",
+     "name": "Mẫu: Đêm mưa lớn"}
+  ],
+  "excluded_sessions": ["d2c250e2", "83db90ae", "7767d4a1"]
+}

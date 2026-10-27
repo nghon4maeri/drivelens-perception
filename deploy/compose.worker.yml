@@ -1,0 +1,41 @@
+# Run from its host directory; worker.env/release.env stay outside Git.
+services:
+  worker:
+    image: ${RAV_WORKER_IMAGE:?Set verified worker image tag or digest}
+    env_file: worker.env
+    user: "1000:1000"
+    hostname: rav26-contabo-worker
+    pid: host
+    init: true
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    restart: unless-stopped
+    cpus: ${RAV_WORKER_CPUS:-3}
+    mem_limit: ${RAV_WORKER_MEMORY_LIMIT:?Set memory limit from policy and host}
+    ports:
+      - "${RAV_INTERACTIVE_BIND_PORT:-8443}:8443"
+    stop_grace_period: ${RAV_WORKER_STOP_GRACE_PERIOD:?Set grace above stop and cleanup deadlines}
+    environment:
+      TMPDIR: /app/output/tmp
+      HF_HOME: /app/data/system-cache/huggingface
+      TORCH_HOME: /app/data/system-cache/torch
+      XDG_CACHE_HOME: /app/data/system-cache
+      YOLO_CONFIG_DIR: /app/output/ultralytics
+      RAV_CLIP_CACHE_DIR: /app/data/model-cache/huggingface/hub
+      OMP_NUM_THREADS: "3"
+      MKL_NUM_THREADS: "3"
+    volumes:
+      - ./data:/app/data
+      - ./output:/app/output
+    healthcheck:
+      test: [CMD, python, -m, src.rav.worker.health]
+      interval: 30s
+      timeout: 10s
+      start_period: 60s
+      retries: 3
+    logging:
+      driver: local
+      options:
+        max-size: 10m
+        max-file: "3"

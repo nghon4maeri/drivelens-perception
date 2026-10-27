@@ -1,0 +1,89 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop, duy-mvp/v2, 'codex/**']
+  pull_request:
+    branches: [main, develop, duy-mvp/v2]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-24.04
+
+    services:   # PostgreSQL thật cho test pilot (CONTRACTS §21.11)
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+          pip install -r requirements.txt
+
+      - name: Backend checks shared with local dev
+        run: python scripts/check_dev.py --scope backend
+        env:
+          APP_ENV: test
+          OPENAI_API_KEY: test-key
+          RAV_PILOT_TEST_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/postgres
+
+  frontend:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22.22.0"
+          cache: npm
+          cache-dependency-path: src/web/package-lock.json
+      - run: npm ci
+        working-directory: src/web
+      - name: Frontend checks shared with local dev
+        run: python scripts/check_dev.py --scope frontend
+
+  images:
+    needs: [lint-and-test, frontend]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [combined, worker]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build Linux image without publishing
+        run: docker build --platform linux/amd64 --target ${{ matrix.target }} -t rav26:ci-${{ matrix.target }} .
+      - name: Smoke combined HTTP packaging
+        if: matrix.target == 'combined'
+        run: |
+          docker run -d --name rav-ci-combined -p 127.0.0.1:18080:8000 rav26:ci-combined
+          trap 'docker logs rav-ci-combined; docker rm -f rav-ci-combined' EXIT
+          python scripts/smoke_combined.py
+      - name: Smoke worker entry without network or models
+        if: matrix.target == 'worker'
+        run: docker run --rm --network none --entrypoint python rav26:ci-worker -m src.rav.worker --help

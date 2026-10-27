@@ -1,0 +1,2 @@
+deploy/web/*.sh text eol=lf
+deploy/web/*.template text eol=lf

@@ -1,0 +1,39 @@
+# Core
+pydantic>=2.10.0
+jsonschema>=4.23.0,<5.0  # Validate public Strategy schemas in the lightweight API
+python-dotenv>=1.0.0
+boto3>=1.35.0,<2.0     # C1: S3 multipart + presigned job transport
+PyJWT[crypto]>=2.8.0   # DEP2: Supabase Auth JWT verification
+psycopg[binary]>=3.2.0 # DEP2: PostgreSQL client / direct TLS
+psycopg_pool>=3.2.0,<4.0 # DEP7: reuse connections, explicit transaction/RLS
+
+# API (L6)
+fastapi>=0.115.0
+uvicorn>=0.30.0
+python-multipart>=0.0.9   # upload multipart
+
+# Deep Learning & Vision
+torch>=2.6.0             # transformers yêu cầu >=2.6 để đọc checkpoint CLIP .bin đã pin
+torchvision>=0.21.0
+ultralytics==8.3.228    # M2: YOLO detection CPU trên riêng proposal picks
+transformers==4.57.6   # CLIP image/text, checkpoint pin trong Params (S9)
+-r requirements-kaggle.txt   # CLIP image backend mặc định (S10)
+
+# Data Processing & Math
+numpy<2.0.0
+scikit-learn>=1.4.0
+Pillow>=10.2.0
+opencv-python>=4.9.0.80
+onnxruntime>=1.20.0   # PII biển số YOLOv9-t end2end (CONTRACTS §21.8 DEP6)
+av>=14.0.0            # PyAV: decoder serve frame theo yêu cầu (quyết định #37)
+PyYAML>=6.0.0         # danh sách lớp dataset YOLO trong data.yaml (S4)
+
+# Evaluation
+ImageHash>=4.3.1
+
+# Dev tools
+ruff>=0.8.0
+pytest>=8.0.0
+httpx>=0.27.0            # TestClient của FastAPI
+moto[s3,server]>=5.0   # DEP4: S3 giả cho test; server: smoke stack local pilot (#96)
+psutil>=5.9   # DEP7-Frames F3: test spawn thật (PID/RSS process con worker)

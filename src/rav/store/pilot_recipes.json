@@ -1,0 +1,1557 @@
+[
+ {
+  "available": true,
+  "background": false,
+  "components": {
+   "product_strength": "combined = ∏ score_i ** strength_i; mask = AND các mask (None = toàn True).\n    Không có objective → combined = 1, mask toàn True.",
+   "random": "Hoán vị ngẫu nhiên (ctx.rng, propose đã seed lại) các unit có mask True, lấy n đầu. Baseline, bỏ qua combined.",
+   "session_kept": "Các unit của pool đã keep trong phiên (`ctx.state.kept`), theo thứ tự pool. Vòng đầu rỗng."
+  },
+  "config": {
+   "candidate_stage": null,
+   "combiner": {
+    "params": {},
+    "type": "product_strength"
+   },
+   "description": "Baseline: chọn ngẫu nhiên đều trong candidates.",
+   "features": {},
+   "name": "random",
+   "objectives": [],
+   "reference": {
+    "params": {},
+    "type": "session_kept"
+   },
+   "selector": {
+    "params": {},
+    "type": "random"
+   }
+  },
+  "description": "Baseline: chọn ngẫu nhiên đều trong candidates.",
+  "name": "random",
+  "needs": [],
+  "params_schema": {
+   "combiner": {
+    "additionalProperties": false,
+    "properties": {},
+    "title": "Params",
+    "type": "object"
+   },
+   "objectives": [],
+   "reference": {
+    "additionalProperties": false,
+    "properties": {},
+    "title": "Params",
+    "type": "object"
+   },
+   "selector": {
+    "additionalProperties": false,
+    "properties": {},
+    "title": "Params",
+    "type": "object"
+   }
+  },
+  "requires_model": false,
+  "requires_training": false,
+  "strategy": {
+   "defaults": {},
+   "inputs": {
+    "model": false,
+    "reference_dataset": false
+   },
+   "name": "random",
+   "parameters_schema": {
+    "additionalProperties": false,
+    "properties": {},
+    "title": "Parameters",
+    "type": "object"
+   },
+   "steps": [
+    "Score candidates",
+    "Select diverse batch"
+   ],
+   "title": "Random",
+   "version": "1"
+  },
+  "unavailable_reason": null
+ },
+ {
+  "available": true,
+  "background": false,
+  "components": {
+   "product_strength": "combined = ∏ score_i ** strength_i; mask = AND các mask (None = toàn True).\n    Không có objective → combined = 1, mask toàn True.",
+   "session_kept": "Các unit của pool đã keep trong phiên (`ctx.state.kept`), theo thứ tự pool. Vòng đầu rỗng.",
+   "uniform": "Cách đều trên candidates (mask True) của từng video theo t0: n candidates, k suất → chỉ số floor((i + 0.5)·n/k).\n    K chia giữa video theo `allocation` (proportional: theo số candidates; equal: chia đều), làm tròn phần dư lớn nhất.\n    Không dùng seed, bỏ qua combined. Baseline."
+  },
+  "config": {
+   "candidate_stage": null,
+   "combiner": {
+    "params": {},
+    "type": "product_strength"
+   },
+   "description": "Baseline: rải đều theo thời gian trong candidates, chia K theo tỉ lệ số unit mỗi video.",
+   "features": {},
+   "name": "uniform",
+   "objectives": [],
+   "reference": {
+    "params": {},
+    "type": "session_kept"
+   },
+   "selector": {
+    "params": {
+     "allocation": "proportional"
+    },
+    "type": "uniform"
+   }
+  },
+  "description": "Baseline: rải đều theo thời gian trong candidates, chia K theo tỉ lệ số unit mỗi video.",
+  "name": "uniform",
+  "needs": [],
+  "params_schema": {
+   "combiner": {
+    "additionalProperties": false,
+    "properties": {},
+    "title": "Params",
+    "type": "object"
+   },
+   "objectives": [],
+   "reference": {
+    "additionalProperties": false,
+    "properties": {},
+    "title": "Params",
+    "type": "object"
+   },
+   "selector": {
+    "additionalProperties": false,
+    "properties": {
+     "allocation": {
+      "default": "proportional",
+      "enum": [
+       "proportional",
+       "equal"
+      ],
+      "title": "Allocation",
+      "type": "string"
+     }
+    },
+    "title": "Params",
+    "type": "object"
+   }
+  },
+  "requires_model": false,
+  "requires_training": false,
+  "strategy": {
+   "defaults": {},
+   "inputs": {
+    "model": false,
+    "reference_dataset": false
+   },
+   "name": "uniform",
+   "parameters_schema": {
+    "additionalProperties": false,
+    "properties": {},
+    "title": "Parameters",
+    "type": "object"
+   },
+   "steps": [
+    "Score candidates",
+    "Select diverse batch"
+   ],
+   "title": "Uniform",
+   "version": "1"
+  },
+  "unavailable_reason": null
+ },
+ {
+  "available": true,
+  "background": false,
+  "components": {
+   "greedy_nms": "Duyệt candidates (mask True) theo combined giảm dần (hoà → Unit.order_key); nhận unit nếu với mọi pick đã nhận\n    trong batch: không (cùng video và |Δt| < nms_s) và 1 − cos(emb) ≥ min_dist. Thiếu thì chạy lại với cả hai ngưỡng\n    ×0.5, ×0.25, ×0 và báo relaxed khi relax=True; False giữ ngưỡng gốc và trả ít/rỗng.\n    Không so với tập đã keep (việc của novelty).",
+   "novelty": "Mức khác biệt so với reference (tập đã keep): (1 − max cos(emb[u], emb[ref])) / 2.\n    Reference rỗng: d = 1 − cos(emb[u], tâm pool), min-max về [0,1] trên các unit đang chấm (mọi d bằng nhau → 1).\n    Cao = chưa có frame nào giống.",
+   "product_strength": "combined = ∏ score_i ** strength_i; mask = AND các mask (None = toàn True).\n    Không có objective → combined = 1, mask toàn True.",
+   "session_kept": "Các unit của pool đã keep trong phiên (`ctx.state.kept`), theo thứ tự pool. Vòng đầu rỗng."
+  },
+  "config": {
+   "candidate_stage": null,
+   "combiner": {
+    "params": {},
+    "type": "product_strength"
+   },
+   "description": "Ưu tiên frame khác tập đã keep (novelty trên DINOv2-S), chọn batch bằng greedy + NMS thời gian để không trùng nhau.",
+   "features": {},
+   "name": "diversity",
+   "objectives": [
+    {
+     "params": {
+      "field": "emb.dinov2_s"
+     },
+     "strength": 1.0,
+     "type": "novelty"
+    }
+   ],
+   "reference": {
+    "params": {},
+    "type": "session_kept"
+   },
+   "selector": {
+    "params": {
+     "field": "emb.dinov2_s",
+     "min_dist": 0.1,
+     "nms_s": 1.0,
+     "relax": true
+    },
+    "type": "greedy_nms"
+   }
+  },
+  "description": "Ưu tiên frame khác tập đã keep (novelty trên DINOv2-S), chọn batch bằng greedy + NMS thời gian để không trùng nhau.",
+  "name": "diversity",
+  "needs": [
+   "DINO"
+  ],
+  "params_schema": {
+   "combiner": {
+    "additionalProperties": false,
+    "properties": {},
+    "title": "Params",
+    "type": "object"
+   },
+   "objectives": [
+    {
+     "additionalProperties": false,
+     "properties": {
+      "field": {
+       "default": "emb.dinov2_s",
+       "title": "Field",
+       "type": "string"
+      }
+     },
+     "title": "Params",
+     "type": "object"
+    }
+   ],
+   "reference": {
+    "additionalProperties": false,
+    "properties": {},
+    "title": "Params",
+    "type": "object"
+   },
+   "selector": {
+    "additionalProperties": false,
+    "properties": {
+     "field": {
+      "default": "emb.dinov2_s",
+      "title": "Field",
+      "type": "string"
+     },
+     "min_dist": {
+      "default": 0.1,
+      "minimum": 0,
+      "title": "Min Dist",
+      "type": "number"
+     },
+     "nms_s": {
+      "default": 1.0,
+      "minimum": 0,
+      "title": "Nms S",
+      "type": "number"
+     },
+     "relax": {
+      "default": true,
+      "title": "Relax",
+      "type": "boolean"
+     }
+    },
+    "title": "Params",
+    "type": "object"
+   }
+  },
+  "requires_model": false,
+  "requires_training": false,
+  "strategy": {
+   "defaults": {},
+   "inputs": {
+    "model": false,
+    "reference_dataset": false
+   },
+   "name": "diversity",
+   "parameters_schema": {
+    "additionalProperties": false,
+    "properties": {},
+    "title": "Parameters",
+    "type": "object"
+   },
+   "steps": [
+    "Score candidates",
+    "Select diverse batch"
+   ],
+   "title": "Diversity",
+   "version": "1"
+  },
+  "unavailable_reason": null
+ },
+ {
+  "available": true,
+  "background": false,
+  "components": {
+   "greedy_nms": "Duyệt candidates (mask True) theo combined giảm dần (hoà → Unit.order_key); nhận unit nếu với mọi pick đã nhận\n    trong batch: không (cùng video và |Δt| < nms_s) và 1 − cos(emb) ≥ min_dist. Thiếu thì chạy lại với cả hai ngưỡng\n    ×0.5, ×0.25, ×0 và báo relaxed khi relax=True; False giữ ngưỡng gốc và trả ít/rỗng.\n    Không so với tập đã keep (việc của novelty).",
+   "novelty": "Mức khác biệt so với reference (tập đã keep): (1 − max cos(emb[u], emb[ref])) / 2.\n    Reference rỗng: d = 1 − cos(emb[u], tâm pool), min-max về [0,1] trên các unit đang chấm (mọi d bằng nhau → 1).\n    Cao = chưa có frame nào giống.",
+   "product_strength": "combined = ∏ score_i ** strength_i; mask = AND các mask (None = toàn True).\n    Không có objective → combined = 1, mask toàn True.",
+   "session_kept": "Các unit của pool đã keep trong phiên (`ctx.state.kept`), theo thứ tự pool. Vòng đầu rỗng.",
+   "text_match": "Max cosine to positive texts >= min_similarity, and > max negative + margin. Score=(cos+1)/2.\n    Similarity is not probability. Explicit texts in proposal config; does not infer/translate session goal."
+  },
+  "config": {
+   "candidate_stage": null,
+   "combiner": {
+    "params": {},
+    "type": "product_strength"
+   },
+   "description": "CLIP lọc theo câu tìm/loại trừ trong config; DINOv2 ưu tiên khác tập đã giữ và chống trùng, không ép đủ đợt.",
+   "features": {},
+   "name": "text_diversity",
+   "objectives": [
+    {
+     "params": {
+      "field": "emb.clip_b32",
+      "min_similarity": 0.2,
+      "negative": [],
+      "negative_margin": 0.0,
+      "texts": [
+       "a dashcam photo of cars on a street"
+      ]
+     },
+     "strength": 1.0,
+     "type": "text_match"
+    },
+    {
+     "params": {
+      "field": "emb.dinov2_s"
+     },
+     "strength": 1.0,
+     "type": "novelty"
+    }
+   ],
+   "reference": {
+    "params": {},
+    "type": "session_kept"
+   },
+   "selector": {
+    "params": {
+     "field": "emb.dinov2_s",
+     "min_dist": 0.1,
+     "nms_s": 1.0,
+     "relax": false
+    },
+    "type": "greedy_nms"
+   }
+  },
+  "description": "CLIP lọc theo câu tìm/loại trừ trong config; DINOv2 ưu tiên khác tập đã giữ và chống trùng, không ép đủ đợt.",
+  "name": "text_diversity",
+  "needs": [
+   "DINO",
+   "CLIP"
+  ],
+  "params_schema": {
+   "combiner": {
+    "additionalProperties": false,
+    "properties": {},
+    "title": "Params",
+    "type": "object"
+   },
+   "objectives": [
+    {
+     "additionalProperties": false,
+     "properties": {
+      "field": {
+       "default": "emb.clip_b32",
+       "title": "Field",
+       "type": "string"
+      },
+      "min_similarity": {
+       "default": 0.2,
+       "description": "Ngưỡng cosine heuristic, chưa hiệu chỉnh; không phải xác suất",
+       "maximum": 1,
+       "minimum": -1,
+       "title": "Min Similarity",
+       "type": "number"
+      },
+      "negative": {
+       "items": {
+        "type": "string"
+       },
+       "maxItems": 32,
+       "title": "Negative",
+       "type": "array"
+      },
+      "negative_margin": {
+       "default": 0.0,
+       "maximum": 2,
+       "minimum": 0,
+       "title": "Negative Margin",
+       "type": "number"
+      },
+      "texts": {
+       "items": {
+        "type": "string"
+       },
+       "maxItems": 32,
+       "minItems": 1,
+       "title": "Texts",
+       "type": "array"
+      }
+     },
+     "title": "Params",
+     "type": "object"
+    },
+    {
+     "additionalProperties": false,
+     "properties": {
+      "field": {
+       "default": "emb.dinov2_s",
+       "title": "Field",
+       "type": "string"
+      }
+     },
+     "title": "Params",
+     "type": "object"
+    }
+   ],
+   "reference": {
+    "additionalProperties": false,
+    "properties": {},
+    "title": "Params",
+    "type": "object"
+   },
+   "selector": {
+    "additionalProperties": false,
+    "properties": {
+     "field": {
+      "default": "emb.dinov2_s",
+      "title": "Field",
+      "type": "string"
+     },
+     "min_dist": {
+      "default": 0.1,
+      "minimum": 0,
+      "title": "Min Dist",
+      "type": "number"
+     },
+     "nms_s": {
+      "default": 1.0,
+      "minimum": 0,
+      "title": "Nms S",
+      "type": "number"
+     },
+     "relax": {
+      "default": true,
+      "title": "Relax",
+      "type": "boolean"
+     }
+    },
+    "title": "Params",
+    "type": "object"
+   }
+  },
+  "requires_model": false,
+  "requires_training": false,
+  "strategy": {
+   "defaults": {
+    "negative": [],
+    "texts": [
+     "a dashcam photo of cars on a street"
+    ]
+   },
+   "inputs": {
+    "model": false,
+    "reference_dataset": false
+   },
+   "name": "text_diversity",
+   "parameters_schema": {
+    "additionalProperties": false,
+    "properties": {
+     "negative": {
+      "items": {
+       "type": "string"
+      },
+      "maxItems": 32,
+      "title": "Negative",
+      "type": "array"
+     },
+     "texts": {
+      "items": {
+       "type": "string"
+      },
+      "maxItems": 32,
+      "minItems": 1,
+      "title": "Texts",
+      "type": "array"
+     }
+    },
+    "title": "TextParameters",
+    "type": "object"
+   },
+   "steps": [
+    "Score candidates",
+    "Select diverse batch"
+   ],
+   "title": "Text diversity",
+   "version": "1"
+  },
+  "unavailable_reason": null
+ },
+ {
+  "available": true,
+  "background": true,
+  "components": {
+   "detection_instability": "Ưu tiên prediction thay đổi giữa original/flip. Không box ở cả hai = chưa có tín hiệu, không kết luận ảnh dễ/model đúng.",
+   "greedy_nms": "Duyệt candidates (mask True) theo combined giảm dần (hoà → Unit.order_key); nhận unit nếu với mọi pick đã nhận\n    trong batch: không (cùng video và |Δt| < nms_s) và 1 − cos(emb) ≥ min_dist. Thiếu thì chạy lại với cả hai ngưỡng\n    ×0.5, ×0.25, ×0 và báo relaxed khi relax=True; False giữ ngưỡng gốc và trả ít/rỗng.\n    Không so với tập đã keep (việc của novelty).",
+   "novelty": "Mức khác biệt so với reference (tập đã keep): (1 − max cos(emb[u], emb[ref])) / 2.\n    Reference rỗng: d = 1 − cos(emb[u], tâm pool), min-max về [0,1] trên các unit đang chấm (mọi d bằng nhau → 1).\n    Cao = chưa có frame nào giống.",
+   "product_strength": "combined = ∏ score_i ** strength_i; mask = AND các mask (None = toàn True).\n    Không có objective → combined = 1, mask toàn True.",
+   "session_kept": "Các unit của pool đã keep trong phiên (`ctx.state.kept`), theo thứ tự pool. Vòng đầu rỗng.",
+   "yolo_consistency": "YOLO detection original/flip: box/class/unmatched consistency, không phải xác suất lỗi. Cả hai rỗng là chưa có tín hiệu."
+  },
+  "config": {
+   "candidate_stage": {
+    "combiner": {
+     "params": {},
+     "type": "product_strength"
+    },
+    "limit": 48,
+    "objectives": [
+     {
+      "params": {
+       "field": "emb.dinov2_s"
+      },
+      "strength": 1.0,
+      "type": "novelty"
+     }
+    ],
+    "selector": {
+     "params": {
+      "field": "emb.dinov2_s",
+      "min_dist": 0.1,
+      "nms_s": 1.0,
+      "relax": true
+     },
+     "type": "greedy_nms"
+    }
+   },
+   "combiner": {
+    "params": {},
+    "type": "product_strength"
+   },
+   "description": "Ưu tiên frame model detection dự đoán thiếu ổn định giữa ảnh gốc và ảnh lật; kết hợp DINOv2 chống trùng lặp.",
+   "features": {
+    "det.yolo_consistency": {
+     "params": {
+      "engine_version": "8.3.228",
+      "inference": {
+       "conf": 0.25,
+       "device": "cpu",
+       "imgsz": 640,
+       "iou": 0.7,
+       "max_det": 300
+      },
+      "model_id": "$perception_model",
+      "transform": "horizontal_flip"
+     },
+     "type": "yolo_consistency"
+    }
+   },
+   "name": "perception_instability",
+   "objectives": [
+    {
+     "params": {
+      "field": "emb.dinov2_s"
+     },
+     "strength": 0.6,
+     "type": "novelty"
+    },
+    {
+     "params": {
+      "field": "det.yolo_consistency"
+     },
+     "strength": 0.4,
+     "type": "detection_instability"
+    }
+   ],
+   "reference": {
+    "params": {},
+    "type": "session_kept"
+   },
+   "selector": {
+    "params": {
+     "field": "emb.dinov2_s",
+     "min_dist": 0.1,
+     "nms_s": 1.0,
+     "relax": true
+    },
+    "type": "greedy_nms"
+   }
+  },
+  "description": "Ưu tiên frame model detection dự đoán thiếu ổn định giữa ảnh gốc và ảnh lật; kết hợp DINOv2 chống trùng lặp.",
+  "name": "perception_instability",
+  "needs": [
+   "DINO"
+  ],
+  "params_schema": {
+   "candidate_objectives": [
+    {
+     "additionalProperties": false,
+     "properties": {
+      "field": {
+       "default": "emb.dinov2_s",
+       "title": "Field",
+       "type": "string"
+      }
+     },
+     "title": "Params",
+     "type": "object"
+    }
+   ],
+   "combiner": {
+    "additionalProperties": false,
+    "properties": {},
+    "title": "Params",
+    "type": "object"
+   },
+   "objectives": [
+    {
+     "additionalProperties": false,
+     "properties": {
+      "field": {
+       "default": "emb.dinov2_s",
+       "title": "Field",
+       "type": "string"
+      }
+     },
+     "title": "Params",
+     "type": "object"
+    },
+    {
+     "additionalProperties": false,
+     "properties": {
+      "field": {
+       "default": "det.yolo_consistency",
+       "title": "Field",
+       "type": "string"
+      }
+     },
+     "title": "Params",
+     "type": "object"
+    }
+   ],
+   "reference": {
+    "additionalProperties": false,
+    "properties": {},
+    "title": "Params",
+    "type": "object"
+   },
+   "selector": {
+    "additionalProperties": false,
+    "properties": {
+     "field": {
+      "default": "emb.dinov2_s",
+      "title": "Field",
+      "type": "string"
+     },
+     "min_dist": {
+      "default": 0.1,
+      "minimum": 0,
+      "title": "Min Dist",
+      "type": "number"
+     },
+     "nms_s": {
+      "default": 1.0,
+      "minimum": 0,
+      "title": "Nms S",
+      "type": "number"
+     },
+     "relax": {
+      "default": true,
+      "title": "Relax",
+      "type": "boolean"
+     }
+    },
+    "title": "Params",
+    "type": "object"
+   }
+  },
+  "requires_model": true,
+  "requires_training": false,
+  "strategy": {
+   "defaults": {},
+   "inputs": {
+    "model": true,
+    "reference_dataset": false
+   },
+   "name": "perception_instability",
+   "parameters_schema": {
+    "additionalProperties": false,
+    "properties": {},
+    "title": "Parameters",
+    "type": "object"
+   },
+   "steps": [
+    "Bound candidates",
+    "Score candidates",
+    "Select diverse batch"
+   ],
+   "title": "Perception instability",
+   "version": "1"
+  },
+  "unavailable_reason": null
+ },
+ {
+  "available": true,
+  "background": true,
+  "components": {},
+  "config": null,
+  "description": "Filter CLIP context and DINO diversity before requested-only YOLO consistency.",
+  "name": "context_uncertainty",
+  "needs": [
+   "DINO",
+   "CLIP"
+  ],
+  "params_schema": {},
+  "requires_model": true,
+  "requires_training": false,
+  "strategy": {
+   "defaults": {
+    "candidate_multiplier": 2,
+    "negative": [],
+    "texts": [
+     "a dashcam photo of cars on a street"
+    ]
+   },
+   "inputs": {
+    "model": true,
+    "reference_dataset": false
+   },
+   "name": "context_uncertainty",
+   "parameters_schema": {
+    "additionalProperties": false,
+    "properties": {
+     "candidate_multiplier": {
+      "default": 2,
+      "maximum": 3,
+      "minimum": 2,
+      "title": "Candidate Multiplier",
+      "type": "integer"
+     },
+     "negative": {
+      "items": {
+       "type": "string"
+      },
+      "maxItems": 32,
+      "title": "Negative",
+      "type": "array"
+     },
+     "texts": {
+      "items": {
+       "type": "string"
+      },
+      "maxItems": 32,
+      "minItems": 1,
+      "title": "Texts",
+      "type": "array"
+     }
+    },
+    "title": "ContextParameters",
+    "type": "object"
+   },
+   "steps": [
+    "Filter context with CLIP",
+    "Bound diverse candidates with DINO",
+    "Measure YOLO original/flip consistency",
+    "Select relevant uncertain diverse batch"
+   ],
+   "title": "Context and detection uncertainty",
+   "version": "1"
+  },
+  "unavailable_reason": null
+ },
+ {
+  "available": true,
+  "background": true,
+  "components": {},
+  "config": null,
+  "description": "Tìm theo ODD × đối tượng và scenario; bổ sung coverage/đa dạng, tùy chọn đo thiếu ổn định.",
+  "name": "odd_coverage",
+  "needs": [
+   "DINO",
+   "CLIP"
+  ],
+  "params_schema": {},
+  "requires_model": false,
+  "requires_training": false,
+  "strategy": {
+   "defaults": {
+    "candidate_limit": 512,
+    "contrast_texts": [
+     "a dashcam photo of a road scene"
+    ],
+    "min_margin": 0.01,
+    "min_similarity": 0.2,
+    "objects": [
+     "cars",
+     "trucks"
+    ],
+    "odd_conditions": [
+     "in daytime",
+     "at night"
+    ],
+    "scenarios": [],
+    "temperature": 0.05
+   },
+   "inputs": {
+    "model": false,
+    "model_optional": true,
+    "reference_dataset": false
+   },
+   "name": "odd_coverage",
+   "parameters_schema": {
+    "additionalProperties": false,
+    "anyOf": [
+     {
+      "properties": {
+       "odd_conditions": {
+        "minItems": 1
+       }
+      },
+      "required": [
+       "odd_conditions"
+      ]
+     },
+     {
+      "properties": {
+       "objects": {
+        "minItems": 1
+       }
+      },
+      "required": [
+       "objects"
+      ]
+     },
+     {
+      "properties": {
+       "scenarios": {
+        "minItems": 1
+       }
+      },
+      "required": [
+       "scenarios"
+      ]
+     }
+    ],
+    "properties": {
+     "candidate_limit": {
+      "default": 512,
+      "maximum": 2048,
+      "minimum": 72,
+      "title": "Candidate Limit",
+      "type": "integer"
+     },
+     "contrast_texts": {
+      "items": {
+       "maxLength": 200,
+       "minLength": 1,
+       "pattern": "\\S",
+       "type": "string"
+      },
+      "maxItems": 8,
+      "minItems": 1,
+      "title": "Contrast Texts",
+      "type": "array"
+     },
+     "min_margin": {
+      "default": 0.01,
+      "maximum": 2,
+      "minimum": -2,
+      "title": "Min Margin",
+      "type": "number"
+     },
+     "min_similarity": {
+      "default": 0.2,
+      "maximum": 1,
+      "minimum": -1,
+      "title": "Min Similarity",
+      "type": "number"
+     },
+     "objects": {
+      "items": {
+       "maxLength": 200,
+       "minLength": 1,
+       "pattern": "\\S",
+       "type": "string"
+      },
+      "maxItems": 8,
+      "title": "Objects",
+      "type": "array"
+     },
+     "odd_conditions": {
+      "items": {
+       "maxLength": 200,
+       "minLength": 1,
+       "pattern": "\\S",
+       "type": "string"
+      },
+      "maxItems": 8,
+      "title": "Odd Conditions",
+      "type": "array"
+     },
+     "scenarios": {
+      "items": {
+       "maxLength": 200,
+       "minLength": 1,
+       "pattern": "\\S",
+       "type": "string"
+      },
+      "maxItems": 8,
+      "title": "Scenarios",
+      "type": "array"
+     },
+     "temperature": {
+      "default": 0.05,
+      "maximum": 1,
+      "minimum": 0.005,
+      "title": "Temperature",
+      "type": "number"
+     }
+    },
+    "title": "ODDParameters",
+    "type": "object"
+   },
+   "steps": [
+    "CLIP lọc từng nhánh ODD × đối tượng và scenario độc lập",
+    "Hợp ứng viên, giữ thông tin nhánh và giới hạn chi phí",
+    "Chọn động theo coverage và DINO; tùy chọn YOLO trên shortlist"
+   ],
+   "title": "Tìm tình huống và bổ sung coverage",
+   "version": "1"
+  },
+  "unavailable_reason": null
+ },
+ {
+  "available": false,
+  "background": true,
+  "components": {
+   "explore_diversity": "75% quota theo combined×(0.5+0.5×distance tới batch); còn lại khám phá random seed, NMS/min_dist không nới.",
+   "reference_novelty": "(1−max cosine DINO tới dataset train + kept)/2; thấp vẫn được chọn nếu tín hiệu khác cao. Không là training value.",
+   "training_kept": "Dataset train cố định và ảnh đã keep; không dùng dropped làm bằng chứng model đúng/sai.",
+   "weighted_mean": "Trung bình có trọng số strength≥0; mask AND; không dùng tích khiến một score 0 triệt hết tín hiệu khác."
+  },
+  "config": {
+   "candidate_stage": null,
+   "combiner": {
+    "params": {},
+    "type": "weighted_mean"
+   },
+   "description": "Bổ sung so dataset train và tập đã giữ; có mẫu train gần nhất để đối chiếu.",
+   "features": {},
+   "name": "reference_diversity",
+   "objectives": [
+    {
+     "params": {
+      "field": "emb.dinov2_s"
+     },
+     "strength": 1.0,
+     "type": "reference_novelty"
+    }
+   ],
+   "reference": {
+    "params": {},
+    "type": "training_kept"
+   },
+   "selector": {
+    "params": {
+     "exploration": 0.25,
+     "field": "emb.dinov2_s",
+     "min_dist": 0.1,
+     "nms_s": 1.0
+    },
+    "type": "explore_diversity"
+   }
+  },
+  "description": "Bổ sung so dataset train và tập đã giữ; có mẫu train gần nhất để đối chiếu.",
+  "name": "reference_diversity",
+  "needs": [
+   "DINO"
+  ],
+  "params_schema": {
+   "combiner": {
+    "additionalProperties": false,
+    "properties": {},
+    "title": "Params",
+    "type": "object"
+   },
+   "objectives": [
+    {
+     "additionalProperties": false,
+     "properties": {
+      "field": {
+       "default": "emb.dinov2_s",
+       "title": "Field",
+       "type": "string"
+      }
+     },
+     "title": "Params",
+     "type": "object"
+    }
+   ],
+   "reference": {
+    "additionalProperties": false,
+    "properties": {},
+    "title": "Params",
+    "type": "object"
+   },
+   "selector": {
+    "additionalProperties": false,
+    "properties": {
+     "exploration": {
+      "default": 0.25,
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Exploration",
+      "type": "number"
+     },
+     "field": {
+      "default": "emb.dinov2_s",
+      "title": "Field",
+      "type": "string"
+     },
+     "min_dist": {
+      "default": 0.1,
+      "maximum": 2,
+      "minimum": 0,
+      "title": "Min Dist",
+      "type": "number"
+     },
+     "nms_s": {
+      "default": 1.0,
+      "minimum": 0,
+      "title": "Nms S",
+      "type": "number"
+     }
+    },
+    "title": "Params",
+    "type": "object"
+   }
+  },
+  "requires_model": false,
+  "requires_training": true,
+  "strategy": {
+   "defaults": {},
+   "inputs": {
+    "model": false,
+    "reference_dataset": true
+   },
+   "name": "reference_diversity",
+   "parameters_schema": {
+    "additionalProperties": false,
+    "properties": {},
+    "title": "Parameters",
+    "type": "object"
+   },
+   "steps": [
+    "Score candidates",
+    "Select diverse batch"
+   ],
+   "title": "Reference diversity",
+   "version": "1"
+  },
+  "unavailable_reason": "missing_model_training_provenance"
+ },
+ {
+  "available": false,
+  "background": true,
+  "components": {
+   "detection_instability": "Ưu tiên prediction thay đổi giữa original/flip. Không box ở cả hai = chưa có tín hiệu, không kết luận ảnh dễ/model đúng.",
+   "explore_diversity": "75% quota theo combined×(0.5+0.5×distance tới batch); còn lại khám phá random seed, NMS/min_dist không nới.",
+   "reference_novelty": "(1−max cosine DINO tới dataset train + kept)/2; thấp vẫn được chọn nếu tín hiệu khác cao. Không là training value.",
+   "training_kept": "Dataset train cố định và ảnh đã keep; không dùng dropped làm bằng chứng model đúng/sai.",
+   "weighted_mean": "Trung bình có trọng số strength≥0; mask AND; không dùng tích khiến một score 0 triệt hết tín hiệu khác.",
+   "yolo_consistency": "YOLO detection original/flip: box/class/unmatched consistency, không phải xác suất lỗi. Cả hai rỗng là chưa có tín hiệu."
+  },
+  "config": {
+   "candidate_stage": {
+    "combiner": {
+     "params": {},
+     "type": "product_strength"
+    },
+    "limit": 128,
+    "objectives": [
+     {
+      "params": {
+       "field": "emb.dinov2_s"
+      },
+      "strength": 1.0,
+      "type": "reference_novelty"
+     }
+    ],
+    "selector": {
+     "params": {
+      "exploration": 0.25,
+      "field": "emb.dinov2_s",
+      "min_dist": 0.1,
+      "nms_s": 1.0
+     },
+     "type": "explore_diversity"
+    }
+   },
+   "combiner": {
+    "params": {},
+    "type": "weighted_mean"
+   },
+   "description": "Dataset train + YOLO original/flip trên tập ứng viên; tín hiệu cần người duyệt, chưa là lỗi/uplift.",
+   "features": {
+    "det.yolo_consistency": {
+     "params": {
+      "engine_version": "8.3.228",
+      "inference": {
+       "conf": 0.25,
+       "device": "cpu",
+       "imgsz": 640,
+       "iou": 0.7,
+       "max_det": 300
+      },
+      "model_id": "$reference_model",
+      "transform": "horizontal_flip"
+     },
+     "type": "yolo_consistency"
+    }
+   },
+   "name": "model_guided",
+   "objectives": [
+    {
+     "params": {
+      "field": "emb.dinov2_s"
+     },
+     "strength": 0.6,
+     "type": "reference_novelty"
+    },
+    {
+     "params": {
+      "field": "det.yolo_consistency"
+     },
+     "strength": 0.4,
+     "type": "detection_instability"
+    }
+   ],
+   "reference": {
+    "params": {},
+    "type": "training_kept"
+   },
+   "selector": {
+    "params": {
+     "exploration": 0.25,
+     "field": "emb.dinov2_s",
+     "min_dist": 0.1,
+     "nms_s": 1.0
+    },
+    "type": "explore_diversity"
+   }
+  },
+  "description": "Dataset train + YOLO original/flip trên tập ứng viên; tín hiệu cần người duyệt, chưa là lỗi/uplift.",
+  "name": "model_guided",
+  "needs": [
+   "DINO"
+  ],
+  "params_schema": {
+   "candidate_objectives": [
+    {
+     "additionalProperties": false,
+     "properties": {
+      "field": {
+       "default": "emb.dinov2_s",
+       "title": "Field",
+       "type": "string"
+      }
+     },
+     "title": "Params",
+     "type": "object"
+    }
+   ],
+   "combiner": {
+    "additionalProperties": false,
+    "properties": {},
+    "title": "Params",
+    "type": "object"
+   },
+   "objectives": [
+    {
+     "additionalProperties": false,
+     "properties": {
+      "field": {
+       "default": "emb.dinov2_s",
+       "title": "Field",
+       "type": "string"
+      }
+     },
+     "title": "Params",
+     "type": "object"
+    },
+    {
+     "additionalProperties": false,
+     "properties": {
+      "field": {
+       "default": "det.yolo_consistency",
+       "title": "Field",
+       "type": "string"
+      }
+     },
+     "title": "Params",
+     "type": "object"
+    }
+   ],
+   "reference": {
+    "additionalProperties": false,
+    "properties": {},
+    "title": "Params",
+    "type": "object"
+   },
+   "selector": {
+    "additionalProperties": false,
+    "properties": {
+     "exploration": {
+      "default": 0.25,
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Exploration",
+      "type": "number"
+     },
+     "field": {
+      "default": "emb.dinov2_s",
+      "title": "Field",
+      "type": "string"
+     },
+     "min_dist": {
+      "default": 0.1,
+      "maximum": 2,
+      "minimum": 0,
+      "title": "Min Dist",
+      "type": "number"
+     },
+     "nms_s": {
+      "default": 1.0,
+      "minimum": 0,
+      "title": "Nms S",
+      "type": "number"
+     }
+    },
+    "title": "Params",
+    "type": "object"
+   }
+  },
+  "requires_model": true,
+  "requires_training": true,
+  "strategy": {
+   "defaults": {},
+   "inputs": {
+    "model": true,
+    "reference_dataset": true
+   },
+   "name": "model_guided",
+   "parameters_schema": {
+    "additionalProperties": false,
+    "properties": {},
+    "title": "Parameters",
+    "type": "object"
+   },
+   "steps": [
+    "Bound candidates",
+    "Score candidates",
+    "Select diverse batch"
+   ],
+   "title": "Model guided",
+   "version": "1"
+  },
+  "unavailable_reason": "missing_model_training_provenance"
+ },
+ {
+  "available": false,
+  "background": true,
+  "components": {
+   "detection_instability": "Ưu tiên prediction thay đổi giữa original/flip. Không box ở cả hai = chưa có tín hiệu, không kết luận ảnh dễ/model đúng.",
+   "explore_diversity": "75% quota theo combined×(0.5+0.5×distance tới batch); còn lại khám phá random seed, NMS/min_dist không nới.",
+   "reference_novelty": "(1−max cosine DINO tới dataset train + kept)/2; thấp vẫn được chọn nếu tín hiệu khác cao. Không là training value.",
+   "text_match": "Max cosine to positive texts >= min_similarity, and > max negative + margin. Score=(cos+1)/2.\n    Similarity is not probability. Explicit texts in proposal config; does not infer/translate session goal.",
+   "training_kept": "Dataset train cố định và ảnh đã keep; không dùng dropped làm bằng chứng model đúng/sai.",
+   "weighted_mean": "Trung bình có trọng số strength≥0; mask AND; không dùng tích khiến một score 0 triệt hết tín hiệu khác.",
+   "yolo_consistency": "YOLO detection original/flip: box/class/unmatched consistency, không phải xác suất lỗi. Cả hai rỗng là chưa có tín hiệu."
+  },
+  "config": {
+   "candidate_stage": {
+    "combiner": {
+     "params": {},
+     "type": "product_strength"
+    },
+    "limit": 128,
+    "objectives": [
+     {
+      "params": {
+       "field": "emb.clip_b32",
+       "min_similarity": 0.2,
+       "negative": [],
+       "negative_margin": 0.0,
+       "texts": [
+        "a dashcam photo of cars on a street"
+       ]
+      },
+      "strength": 1.0,
+      "type": "text_match"
+     },
+     {
+      "params": {
+       "field": "emb.dinov2_s"
+      },
+      "strength": 1.0,
+      "type": "reference_novelty"
+     }
+    ],
+    "selector": {
+     "params": {
+      "exploration": 0.25,
+      "field": "emb.dinov2_s",
+      "min_dist": 0.1,
+      "nms_s": 1.0
+     },
+     "type": "explore_diversity"
+    }
+   },
+   "combiner": {
+    "params": {},
+    "type": "weighted_mean"
+   },
+   "description": "Dataset train + YOLO original/flip trên tập ứng viên; tín hiệu cần người duyệt, chưa là lỗi/uplift.",
+   "features": {
+    "det.yolo_consistency": {
+     "params": {
+      "engine_version": "8.3.228",
+      "inference": {
+       "conf": 0.25,
+       "device": "cpu",
+       "imgsz": 640,
+       "iou": 0.7,
+       "max_det": 300
+      },
+      "model_id": "$reference_model",
+      "transform": "horizontal_flip"
+     },
+     "type": "yolo_consistency"
+    }
+   },
+   "name": "text_model_guided",
+   "objectives": [
+    {
+     "params": {
+      "field": "emb.dinov2_s"
+     },
+     "strength": 0.6,
+     "type": "reference_novelty"
+    },
+    {
+     "params": {
+      "field": "det.yolo_consistency"
+     },
+     "strength": 0.4,
+     "type": "detection_instability"
+    }
+   ],
+   "reference": {
+    "params": {},
+    "type": "training_kept"
+   },
+   "selector": {
+    "params": {
+     "exploration": 0.25,
+     "field": "emb.dinov2_s",
+     "min_dist": 0.1,
+     "nms_s": 1.0
+    },
+    "type": "explore_diversity"
+   }
+  },
+  "description": "Dataset train + YOLO original/flip trên tập ứng viên; tín hiệu cần người duyệt, chưa là lỗi/uplift.",
+  "name": "text_model_guided",
+  "needs": [
+   "DINO",
+   "CLIP"
+  ],
+  "params_schema": {
+   "candidate_objectives": [
+    {
+     "additionalProperties": false,
+     "properties": {
+      "field": {
+       "default": "emb.clip_b32",
+       "title": "Field",
+       "type": "string"
+      },
+      "min_similarity": {
+       "default": 0.2,
+       "description": "Ngưỡng cosine heuristic, chưa hiệu chỉnh; không phải xác suất",
+       "maximum": 1,
+       "minimum": -1,
+       "title": "Min Similarity",
+       "type": "number"
+      },
+      "negative": {
+       "items": {
+        "type": "string"
+       },
+       "maxItems": 32,
+       "title": "Negative",
+       "type": "array"
+      },
+      "negative_margin": {
+       "default": 0.0,
+       "maximum": 2,
+       "minimum": 0,
+       "title": "Negative Margin",
+       "type": "number"
+      },
+      "texts": {
+       "items": {
+        "type": "string"
+       },
+       "maxItems": 32,
+       "minItems": 1,
+       "title": "Texts",
+       "type": "array"
+      }
+     },
+     "title": "Params",
+     "type": "object"
+    },
+    {
+     "additionalProperties": false,
+     "properties": {
+      "field": {
+       "default": "emb.dinov2_s",
+       "title": "Field",
+       "type": "string"
+      }
+     },
+     "title": "Params",
+     "type": "object"
+    }
+   ],
+   "combiner": {
+    "additionalProperties": false,
+    "properties": {},
+    "title": "Params",
+    "type": "object"
+   },
+   "objectives": [
+    {
+     "additionalProperties": false,
+     "properties": {
+      "field": {
+       "default": "emb.dinov2_s",
+       "title": "Field",
+       "type": "string"
+      }
+     },
+     "title": "Params",
+     "type": "object"
+    },
+    {
+     "additionalProperties": false,
+     "properties": {
+      "field": {
+       "default": "det.yolo_consistency",
+       "title": "Field",
+       "type": "string"
+      }
+     },
+     "title": "Params",
+     "type": "object"
+    }
+   ],
+   "reference": {
+    "additionalProperties": false,
+    "properties": {},
+    "title": "Params",
+    "type": "object"
+   },
+   "selector": {
+    "additionalProperties": false,
+    "properties": {
+     "exploration": {
+      "default": 0.25,
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Exploration",
+      "type": "number"
+     },
+     "field": {
+      "default": "emb.dinov2_s",
+      "title": "Field",
+      "type": "string"
+     },
+     "min_dist": {
+      "default": 0.1,
+      "maximum": 2,
+      "minimum": 0,
+      "title": "Min Dist",
+      "type": "number"
+     },
+     "nms_s": {
+      "default": 1.0,
+      "minimum": 0,
+      "title": "Nms S",
+      "type": "number"
+     }
+    },
+    "title": "Params",
+    "type": "object"
+   }
+  },
+  "requires_model": true,
+  "requires_training": true,
+  "strategy": {
+   "defaults": {
+    "negative": [],
+    "texts": [
+     "a dashcam photo of cars on a street"
+    ]
+   },
+   "inputs": {
+    "model": true,
+    "reference_dataset": true
+   },
+   "name": "text_model_guided",
+   "parameters_schema": {
+    "additionalProperties": false,
+    "properties": {
+     "negative": {
+      "items": {
+       "type": "string"
+      },
+      "maxItems": 32,
+      "title": "Negative",
+      "type": "array"
+     },
+     "texts": {
+      "items": {
+       "type": "string"
+      },
+      "maxItems": 32,
+      "minItems": 1,
+      "title": "Texts",
+      "type": "array"
+     }
+    },
+    "title": "TextParameters",
+    "type": "object"
+   },
+   "steps": [
+    "Bound candidates",
+    "Score candidates",
+    "Select diverse batch"
+   ],
+   "title": "Text model guided",
+   "version": "1"
+  },
+  "unavailable_reason": "missing_model_training_provenance"
+ }
+]

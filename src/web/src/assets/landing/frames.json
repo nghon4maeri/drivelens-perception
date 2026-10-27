@@ -1,0 +1,204 @@
+{
+ "export_id": "ac68fd7a-7fa8-46f6-9a2e-17e288ce60d3",
+ "payload_hash": "968faa2d2b457f91109f83ef53e198381e9a5c71a6b5c418c7c9988cd8e8189c",
+ "n_members": 42,
+ "models": {
+  "face": "face_detection_yunet_2023mar.onnx",
+  "plate": "yolo-v9-t-640-license-plates-end2end.onnx",
+  "pipeline_version": "pii-onnx-resize-v2"
+ },
+ "frames": [
+  {
+   "o": 0,
+   "name": "frame-00.webp",
+   "video": 1,
+   "t": 60.25,
+   "frame": 3615,
+   "faces": 0,
+   "plates": 2,
+   "boxes": []
+  },
+  {
+   "o": 2,
+   "name": "frame-02.webp",
+   "video": 1,
+   "t": 544.25,
+   "frame": 32655,
+   "faces": 0,
+   "plates": 0,
+   "boxes": []
+  },
+  {
+   "o": 4,
+   "name": "frame-04.webp",
+   "video": 1,
+   "t": 687.0,
+   "frame": 41220,
+   "faces": 0,
+   "plates": 0,
+   "boxes": []
+  },
+  {
+   "o": 9,
+   "name": "frame-09.webp",
+   "video": 1,
+   "t": 1141.0,
+   "frame": 68460,
+   "faces": 0,
+   "plates": 2,
+   "boxes": []
+  },
+  {
+   "o": 13,
+   "name": "frame-13.webp",
+   "video": 1,
+   "t": 1457.0,
+   "frame": 87420,
+   "faces": 0,
+   "plates": 0,
+   "boxes": []
+  },
+  {
+   "o": 15,
+   "name": "frame-15.webp",
+   "video": 2,
+   "t": 7.75,
+   "frame": 465,
+   "faces": 0,
+   "plates": 1,
+   "boxes": []
+  },
+  {
+   "o": 17,
+   "name": "frame-17.webp",
+   "video": 2,
+   "t": 60.25,
+   "frame": 3615,
+   "faces": 0,
+   "plates": 0,
+   "boxes": []
+  },
+  {
+   "o": 18,
+   "name": "frame-18.webp",
+   "video": 2,
+   "t": 204.5,
+   "frame": 12270,
+   "faces": 0,
+   "plates": 0,
+   "boxes": []
+  },
+  {
+   "o": 21,
+   "name": "frame-21.webp",
+   "video": 2,
+   "t": 581.75,
+   "frame": 34905,
+   "faces": 1,
+   "plates": 0,
+   "boxes": []
+  },
+  {
+   "o": 24,
+   "name": "frame-24.webp",
+   "video": 2,
+   "t": 717.25,
+   "frame": 43035,
+   "faces": 1,
+   "plates": 0,
+   "boxes": []
+  },
+  {
+   "o": 29,
+   "name": "frame-29.webp",
+   "video": 2,
+   "t": 1160.0,
+   "frame": 69600,
+   "faces": 1,
+   "plates": 0,
+   "boxes": []
+  },
+  {
+   "o": 41,
+   "name": "frame-41.webp",
+   "video": 2,
+   "t": 1403.25,
+   "frame": 84195,
+   "faces": 0,
+   "plates": 0,
+   "boxes": []
+  },
+  {
+   "o": 8,
+   "name": "frame-08.webp",
+   "video": 1,
+   "t": 1093.0,
+   "frame": 65580,
+   "faces": 3,
+   "plates": 1,
+   "boxes": [
+    {
+     "kind": "plate",
+     "conf": 0.76,
+     "box": [
+      0.0828,
+      0.5514,
+      0.1383,
+      0.6056
+     ]
+    },
+    {
+     "kind": "face",
+     "conf": 0.57,
+     "box": [
+      0.3867,
+      0.2819,
+      0.4133,
+      0.3347
+     ]
+    },
+    {
+     "kind": "face",
+     "conf": 0.45,
+     "box": [
+      0.3586,
+      0.325,
+      0.3883,
+      0.3931
+     ]
+    },
+    {
+     "kind": "face",
+     "conf": 0.4,
+     "box": [
+      0.3961,
+      0.2819,
+      0.4281,
+      0.3514
+     ]
+    }
+   ]
+  },
+  {
+   "o": 33,
+   "name": "frame-33.webp",
+   "video": 2,
+   "t": 1279.25,
+   "frame": 76755,
+   "faces": 1,
+   "plates": 0,
+   "boxes": [
+    {
+     "kind": "face",
+     "conf": 0.9,
+     "box": [
+      0.7562,
+      0.3153,
+      0.8344,
+      0.5028
+     ]
+    }
+   ]
+  }
+ ]
+}

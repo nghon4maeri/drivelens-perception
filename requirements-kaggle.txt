@@ -1,0 +1,4 @@
+# S10 adapter in this repository, official Kaggle SDK + Jupyter transport.
+kagglesdk==0.1.37
+requests>=2.31
+websocket-client>=1.7
